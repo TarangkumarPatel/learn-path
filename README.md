@@ -56,11 +56,14 @@ The container automatically runs migrations on startup and serves the applicatio
 
 #### Render (Hosted Deployment)
 
-The project also includes a `render.yaml` configuration file for deploying directly to Render using Docker. Before deploying, make sure you update the following environment variables so that it works:
+The project also includes a `render.yaml` configuration file for deploying directly to Render using Docker. Render's free web service tier has no persistent disk, so the app is configured to run against a hosted Postgres database (e.g. [Neon](https://neon.tech), which has a free persistent tier) instead of SQLite in production. Before deploying, set the following environment variables in the Render dashboard:
 
-- `DJANGO_ALLOWED_HOSTS` — the domain(s) your app will be served from
-- `DJANGO_CSRF_TRUSTED_ORIGINS` — required for form submissions to work correctly in production
+- `DJANGO_ALLOWED_HOSTS` — the domain(s) your app will be served from (e.g. `your-service-name.onrender.com`)
+- `DJANGO_CSRF_TRUSTED_ORIGINS` — required for form submissions to work correctly in production (e.g. `https://your-service-name.onrender.com`)
+- `DATABASE_URL` — the connection string for your hosted Postgres database
+
+`DJANGO_SECRET_KEY` is generated automatically by Render via `render.yaml`.
 
 ### Database
 
-The project currently uses SQLite as its database. SQLite works fine for small to medium deployments, but if the application needs to scale or handle concurrent writes under heavy load, migrating to a dedicated database like PostgreSQL would be worth considering.
+The project uses SQLite for local development (zero setup required) and Postgres in production, selected automatically based on whether a `DATABASE_URL` environment variable is set (see `learnpath/settings.py`).

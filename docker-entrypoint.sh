@@ -1,8 +1,6 @@
 #!/bin/sh
 set -e
 
-mkdir -p /data
-
 python manage.py migrate
 
 PORT="${PORT:-8000}"

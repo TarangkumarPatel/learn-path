@@ -112,4 +112,80 @@ class QuestionInline(admin.TabularInline):
     ordering = ('order',)
 
 
-# prerequisites use filter_
+# prerequisites use filter_horizontal since a topic can have many, and picking
+# them from a plain multi-select would get unwieldy fast
+@admin.register(Topic)
+class TopicAdmin(admin.ModelAdmin):
+    list_display = ('title', 'course', 'order')
+    list_filter = ('course',)
+    search_fields = ('title', 'description', 'course__title')
+    filter_horizontal = ('prerequisites',)
+    inlines = [CourseLessonInline]
+
+
+@admin.register(CourseLesson)
+class CourseLessonAdmin(admin.ModelAdmin):
+    list_display = ('title', 'topic', 'duration_minutes', 'order', 'is_preview')
+    list_filter = ('is_preview', 'topic__course')
+    search_fields = ('title', 'content')
+
+
+# questions are managed inline on the assessment; no need for a standalone
+# top-level view of them
+@admin.register(Assessment)
+class AssessmentAdmin(admin.ModelAdmin):
+    list_display = ('title', 'course', 'passing_score', 'is_active', 'created_at')
+    list_filter = ('is_active', 'course')
+    search_fields = ('title', 'description', 'course__title')
+    inlines = [QuestionInline]
+
+
+# results are a submission log, not something admins hand-author, so nothing
+# here is editable — this is a read-only view for reviewing learner outcomes
+@admin.register(AssessmentResult)
+class AssessmentResultAdmin(admin.ModelAdmin):
+    list_display = ('user', 'assessment', 'score', 'passed', 'submitted_at')
+    list_filter = ('passed', 'assessment__course')
+    search_fields = ('user__username', 'user__name', 'assessment__title')
+    date_hierarchy = 'submitted_at'
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(LearningGoal)
+class LearningGoalAdmin(admin.ModelAdmin):
+    list_display = ('title', 'user', 'course', 'status', 'progress_percentage', 'target_date')
+    list_filter = ('status', 'course')
+    search_fields = ('title', 'user__username', 'user__name')
+
+
+@admin.register(UserCourseEnrollment)
+class UserCourseEnrollmentAdmin(admin.ModelAdmin):
+    list_display = ('user', 'course', 'is_active', 'enrolled_at')
+    list_filter = ('is_active', 'course')
+    search_fields = ('user__username', 'user__name', 'course__title')
+
+
+@admin.register(UserCourseProgress)
+class UserCourseProgressAdmin(admin.ModelAdmin):
+    list_display = ('user', 'course', 'status', 'completion_percentage', 'last_accessed_at')
+    list_filter = ('status', 'course')
+    search_fields = ('user__username', 'user__name', 'course__title')
+
+
+@admin.register(UserTopicProgress)
+class UserTopicProgressAdmin(admin.ModelAdmin):
+    list_display = ('user', 'topic', 'completion_percentage', 'completed_at')
+    list_filter = ('topic__course',)
+    search_fields = ('user__username', 'user__name', 'topic__title')
+
+
+@admin.register(UserLessonProgress)
+class UserLessonProgressAdmin(admin.ModelAdmin):
+    list_display = ('user', 'lesson', 'status', 'completion_percentage', 'last_accessed_at')
+    list_filter = ('status', 'lesson__topic__course')
+    search_fields = ('user__username', 'user__name', 'lesson__title')

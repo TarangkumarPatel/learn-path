@@ -11,5 +11,7 @@ services:
         value: your-service-name.onrender.com
       - key: DJANGO_CSRF_TRUSTED_ORIGINS
         value: https://your-service-name.onrender.com
-      - key: SQLITE_NAME
-        value: /data/db.sqlite3
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
