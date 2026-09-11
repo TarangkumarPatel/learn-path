@@ -1,0 +1,112 @@
+{% extends 'core/base.html' %}
+
+{% block title %}LearnPath - Home{% endblock %}
+
+{% block extra_head %}
+<style>
+    .hero {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 22px;
+    }
+
+    .hero p {
+        max-width: 640px;
+    }
+
+    .role-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    .role-card {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        background: linear-gradient(180deg, #ffffff, #f5fbf8);
+    }
+
+    .role-card h2 {
+        margin: 0 0 8px;
+        font-family: "Merriweather", Georgia, serif;
+        font-size: 1.2rem;
+    }
+
+    .role-card .eyebrow {
+        display: inline-block;
+        margin-bottom: 10px;
+        color: var(--primary);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        font-size: 0.76rem;
+    }
+
+    .role-card .actions {
+        margin-top: 14px;
+    }
+
+    .quick-links {
+        margin-top: 22px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 700px) {
+        .role-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="hero">
+        <h1>Welcome to LearnPath</h1>
+        <p>Choose how you want to enter the platform. Admins can manage curricula and users, while learners can sign in and continue their courses.</p>
+    </div>
+
+    {% if user.is_authenticated %}
+        <p>You are logged in and can continue from here.</p>
+        <div class="actions">
+            <a class="btn" href="{% url 'dashboard' %}">Go to Dashboard</a>
+            <a class="btn btn-secondary" href="{% url 'curriculum_browser' %}">Browse Curricula</a>
+            {% if user.is_staff %}
+                <a class="btn btn-secondary" href="{% url 'admin:index' %}">Open Admin</a>
+            {% endif %}
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-secondary">Logout</button>
+            </form>
+        </div>
+    {% else %}
+        <div class="role-grid">
+            <section class="role-card">
+                <span class="eyebrow">Admin</span>
+                <h2>Sign in as admin</h2>
+                <p>Use your admin username and password to add curricula, publish updates, and manage users.</p>
+                <div class="actions">
+                    <a class="btn" href="{% url 'admin:login' %}">Admin Login</a>
+                </div>
+            </section>
+
+            <section class="role-card">
+                <span class="eyebrow">User</span>
+                <h2>Sign in as learner</h2>
+                <p>Use the regular user login to access your dashboard and browse published curricula.</p>
+                <div class="actions">
+                    <a class="btn" href="{% url 'login' %}">User Login</a>
+                    <a class="btn btn-secondary" href="{% url 'signup' %}">Create Account</a>
+                </div>
+            </section>
+        </div>
+
+        <div class="quick-links">
+            <div class="actions">
+                <a class="btn btn-secondary" href="{% url 'curriculum_browser' %}">Browse Curricula</a>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

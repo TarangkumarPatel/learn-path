@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+
+{% block title %}LearnPath - Sign Up{% endblock %}
+
+{% block content %}
+    <h1>Create Your Account</h1>
+    <p>Set up your login to start tracking your progress.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Sign Up</button>
+    </form>
+
+    <div class="row">
+        <a class="btn btn-secondary" href="{% url 'login' %}">Already have an account?</a>
+        <a class="btn btn-secondary" href="{% url 'home' %}">Back to home</a>
+    </div>
+{% endblock %}

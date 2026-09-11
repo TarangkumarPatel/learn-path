@@ -1,0 +1,113 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ assessment.title }} - Assessment{% endblock %}
+
+{% block extra_head %}
+<style>
+    .assessment-head {
+        margin-bottom: 18px;
+    }
+
+    .question-list {
+        display: grid;
+        gap: 14px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .question-card,
+    .result-card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        background: #fbfdfc;
+    }
+
+    .question-card h3,
+    .result-card h2 {
+        margin-top: 0;
+        margin-bottom: 8px;
+    }
+
+    .option-list {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .option-row {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        padding: 10px;
+        border: 1px solid #dbe9e5;
+        border-radius: 10px;
+        background: #fff;
+    }
+
+    .option-row input {
+        margin-top: 4px;
+    }
+
+    .meta-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="assessment-head">
+    <h1>{{ assessment.title }}</h1>
+    <p>{{ assessment.course.subject.name }} · {{ assessment.course.title }} · Pass mark {{ assessment.passing_score }}%</p>
+    {% if assessment.description %}
+        <p>{{ assessment.description }}</p>
+    {% endif %}
+</header>
+
+{% if latest_result %}
+    <section class="result-card">
+        <h2>{% if submitted_result %}Assessment Submitted{% else %}Latest Result{% endif %}</h2>
+        <p>Your score: <strong>{{ latest_result.score }}%</strong></p>
+        <p>{{ latest_result.correct_answers }} of {{ latest_result.total_questions }} correct · {% if latest_result.passed %}Passed{% else %}Did not meet passing score{% endif %}</p>
+        <div class="meta-row">
+            <span class="chip">Submitted {{ latest_result.submitted_at|date:'M j, Y g:i A' }}</span>
+        </div>
+    </section>
+{% endif %}
+
+{% if questions %}
+    <form method="post">
+        {% csrf_token %}
+        <ol class="question-list">
+            {% for question in questions %}
+                <li class="question-card">
+                    <h3>Question {{ forloop.counter }}</h3>
+                    <p>{{ question.prompt }}</p>
+                    <div class="option-list">
+                        <label class="option-row"><input type="radio" name="question_{{ question.id }}" value="A" required> <span>{{ question.option_a }}</span></label>
+                        <label class="option-row"><input type="radio" name="question_{{ question.id }}" value="B"> <span>{{ question.option_b }}</span></label>
+                        <label class="option-row"><input type="radio" name="question_{{ question.id }}" value="C"> <span>{{ question.option_c }}</span></label>
+                        <label class="option-row"><input type="radio" name="question_{{ question.id }}" value="D"> <span>{{ question.option_d }}</span></label>
+                    </div>
+                    {% if question.explanation and submitted_result %}
+                        <p class="question-help">Explanation: {{ question.explanation }}</p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ol>
+        <div class="actions">
+            <button type="submit">Submit Assessment</button>
+            <a class="btn btn-secondary" href="{% url 'dashboard' %}">Back to Dashboard</a>
+        </div>
+    </form>
+{% else %}
+    <p>No questions have been added to this assessment yet.</p>
+    <div class="actions">
+        <a class="btn btn-secondary" href="{% url 'dashboard' %}">Back to Dashboard</a>
+    </div>
+{% endif %}
+{% endblock %}

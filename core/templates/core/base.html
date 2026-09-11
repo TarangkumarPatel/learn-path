@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LearnPath{% endblock %}</title>
+    {% block extra_head %}{% endblock %}
+    <style>
+        :root {
+            --bg-top: #f3f8f5;
+            --bg-bottom: #e5efe9;
+            --surface: #ffffff;
+            --surface-soft: #f9fcfa;
+            --text: #1f2937;
+            --muted: #5b6778;
+            --border: #d6e0db;
+            --primary: #0f766e;
+            --primary-hover: #0b5f58;
+            --secondary: #eef6f3;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Nunito", "Trebuchet MS", sans-serif;
+            color: var(--text);
+            background: linear-gradient(165deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 32px 16px;
+        }
+
+        .layout {
+            width: 100%;
+            max-width: 860px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .brand {
+            font-family: "Merriweather", Georgia, serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--secondary);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 28px rgba(15, 118, 110, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-family: "Merriweather", Georgia, serif;
+        }
+
+        p {
+            margin-top: 0;
+            color: var(--muted);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .btn,
+        button,
+        input[type="submit"] {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: var(--primary);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            padding: 9px 14px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn:hover,
+        button:hover,
+        input[type="submit"]:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--surface-soft);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #ecf4f0;
+        }
+
+        form {
+            margin: 0;
+            background: var(--surface-soft);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        form p {
+            margin-bottom: 12px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="date"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 11px;
+            border: 1px solid #bfd0c8;
+            border-radius: 9px;
+            margin-top: 6px;
+            font: inherit;
+        }
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        ul.errorlist {
+            margin: 8px 0;
+            padding-left: 18px;
+            color: #9d1c1c;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 14px;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 18px 10px;
+            }
+
+            .card {
+                padding: 18px;
+                border-radius: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="layout {% block layout_class %}{% endblock %}">
+        <div class="topbar">
+            <a href="{% url 'home' %}" class="brand">LearnPath</a>
+            {% if user.is_authenticated %}
+                <span class="chip">Signed in: {{ user.display_name }}</span>
+            {% else %}
+                <span class="chip">Learning starts here</span>
+            {% endif %}
+        </div>
+
+        <section class="card {% block card_class %}{% endblock %}">
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+    {% block extra_body %}{% endblock %}
+</body>
+</html>

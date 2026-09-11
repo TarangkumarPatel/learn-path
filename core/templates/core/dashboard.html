@@ -1,0 +1,644 @@
+{% extends 'core/base.html' %}
+
+{% block title %}LearnPath - Dashboard{% endblock %}
+
+{% block layout_class %}dashboard-layout{% endblock %}
+
+{% block card_class %}dashboard-card{% endblock %}
+
+{% block extra_head %}
+<style>
+    .dashboard-layout {
+        max-width: 1180px;
+    }
+
+    .dashboard-card {
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .dashboard-shell {
+        display: grid;
+        grid-template-columns: 230px 1fr;
+        min-height: 620px;
+    }
+
+    .sidebar {
+        border-right: 1px solid var(--border);
+        background: linear-gradient(180deg, #eef7f5 0%, #f7fbfa 100%);
+        padding: 20px 14px;
+    }
+
+    .sidebar h2 {
+        margin: 0 8px 14px;
+        font-size: 1.05rem;
+        font-family: "Merriweather", Georgia, serif;
+        color: #0b5f58;
+    }
+
+    .nav-list {
+        display: grid;
+        gap: 8px;
+    }
+
+    .nav-btn {
+        width: 100%;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: transparent;
+        text-align: left;
+        color: #25454a;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .nav-btn.active {
+        background: #dff1ee;
+        border-color: #b8dbd5;
+        color: #0a5f58;
+    }
+
+    .dashboard-main {
+        padding: 24px;
+        background: #fbfdfc;
+    }
+
+    .view {
+        display: none;
+    }
+
+    .view.active {
+        display: block;
+    }
+
+    .welcome {
+        margin-bottom: 18px;
+    }
+
+    .welcome h1 {
+        margin-bottom: 6px;
+    }
+
+    .welcome p {
+        margin-bottom: 0;
+    }
+
+    .grid,
+    .split-two,
+    .goal-grid {
+        display: grid;
+        gap: 14px;
+    }
+
+    .grid {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .split-two,
+    .goal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ui-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: 0 8px 20px rgba(6, 74, 96, 0.05);
+    }
+
+    .ui-card h3 {
+        margin: 0 0 10px;
+        font-size: 1rem;
+    }
+
+    .stat-grid {
+        grid-column: span 12;
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .stat strong {
+        display: block;
+        font-size: 1.3rem;
+        color: #0a5f58;
+    }
+
+    .stat span,
+    .meta,
+    .muted-empty,
+    .section-head p,
+    .question-help {
+        color: var(--muted);
+    }
+
+    .current-path,
+    .goals-panel {
+        grid-column: span 8;
+    }
+
+    .notifications,
+    .results-panel {
+        grid-column: span 4;
+    }
+
+    .course-list,
+    .notification-list,
+    .assessment-list,
+    .goal-list,
+    .result-list {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .course-item,
+    .note,
+    .assessment-item,
+    .goal-item,
+    .result-item {
+        border: 1px solid #dbe9e5;
+        border-radius: 10px;
+        padding: 12px;
+        background: #fcfefd;
+    }
+
+    .course-head,
+    .section-head,
+    .item-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .course-title,
+    .item-head h4,
+    .goal-item h4,
+    .result-item h4 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 0.96rem;
+    }
+
+    .progress-wrap {
+        height: 8px;
+        background: #e4efec;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #1d7ea8, #1c9f6e);
+    }
+
+    .meta {
+        margin: 6px 0 0;
+        font-size: 0.86rem;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.76rem;
+        border: 1px solid #b8dbd5;
+        border-radius: 999px;
+        padding: 3px 8px;
+        color: #0b5f58;
+        background: #e7f5f2;
+        white-space: nowrap;
+    }
+
+    .course-actions,
+    .item-actions {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .section-head {
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    .section-head h3 {
+        margin: 0;
+    }
+
+    .section-head p {
+        flex: 1 1 280px;
+        max-width: 520px;
+    }
+
+    .btn-sm {
+        padding: 6px 10px;
+        font-size: 0.83rem;
+    }
+
+    .goal-form {
+        display: grid;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .goal-form-wrap,
+    .goal-list-wrap {
+        min-width: 0;
+    }
+
+    .goal-form-wrap {
+        max-width: 360px;
+    }
+
+    .goal-form label,
+    .inline-form label {
+        display: block;
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: #25454a;
+    }
+
+    .inline-form {
+        margin-top: 10px;
+        padding: 12px;
+    }
+
+    .inline-form .row {
+        margin-top: 0;
+    }
+
+    .field-row {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .goal-grid {
+        grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .outline-list {
+        margin: 10px 0 0;
+        padding-left: 18px;
+        color: var(--muted);
+        font-size: 0.86rem;
+    }
+
+    .outline-list li + li {
+        margin-top: 4px;
+    }
+
+    .error-text {
+        margin: 0;
+        color: #9d1c1c;
+        font-size: 0.88rem;
+    }
+
+    .link-reset {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    @media (max-width: 980px) {
+        .dashboard-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+            border-right: 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-list {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .current-path,
+        .notifications,
+        .goals-panel,
+        .results-panel {
+            grid-column: span 12;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .dashboard-main {
+            padding: 16px;
+        }
+
+        .nav-list,
+        .stat-grid,
+        .split-two,
+        .goal-grid,
+        .field-row {
+            grid-template-columns: 1fr;
+        }
+
+        .goal-form-wrap {
+            max-width: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-shell">
+    <aside class="sidebar">
+        <h2>Learning Panel</h2>
+        <nav class="nav-list" aria-label="Dashboard navigation">
+            <button type="button" class="nav-btn active" data-view="overview">Dashboard</button>
+            <button type="button" class="nav-btn" data-view="browse">Browse Courses</button>
+            <button type="button" class="nav-btn" data-view="my-courses">My Courses</button>
+            <button type="button" class="nav-btn" data-view="quiz">Quiz</button>
+        </nav>
+    </aside>
+
+    <section class="dashboard-main">
+        <section class="view active" id="overview" data-section>
+            <header class="welcome">
+                <h1>Welcome back, {{ user.display_name }}</h1>
+                <p>Track course progress, complete assessments, and keep your learning goals moving.</p>
+            </header>
+
+            <div class="grid">
+                <div class="stat-grid">
+                    <article class="ui-card stat"><strong>{{ courses_enrolled_count }}</strong><span>Courses Enrolled</span></article>
+                    <article class="ui-card stat"><strong>{{ courses_completed_count }}</strong><span>Courses Completed</span></article>
+                    <article class="ui-card stat"><strong>{{ topics_remaining_count }}</strong><span>Topics Remaining</span></article>
+                </div>
+
+                <article class="ui-card current-path">
+                    <div class="section-head">
+                        <h3>Current Learning Path</h3>
+                        <span class="badge">Top Progress: {% if top_progress_course %}{{ top_progress_course.title }}{% else %}-{% endif %}</span>
+                    </div>
+                    {% if enrolled_courses %}
+                        <ul class="course-list">
+                            {% for course in enrolled_courses %}
+                                <li class="course-item">
+                                    <div class="course-head">
+                                        <p class="course-title">{{ course.title }}</p>
+                                        <span class="badge">{{ course.summary.progress }}% done</span>
+                                    </div>
+                                    <div class="progress-wrap" aria-label="{{ course.title }} progress">
+                                        <div class="progress-fill" style="width: {{ course.summary.progress }}%"></div>
+                                    </div>
+                                    <p class="meta">{{ course.subject.name }} · {{ course.summary.topics_remaining }} topics remaining</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="muted-empty">No courses enrolled yet. Browse and enroll to start learning.</p>
+                    {% endif %}
+                </article>
+
+                <article class="ui-card notifications">
+                    <h3>Notifications</h3>
+                    <ul class="notification-list">
+                        {% for notification in notifications %}
+                            <li class="note">{{ notification }}</li>
+                        {% endfor %}
+                    </ul>
+                </article>
+
+                <article class="ui-card goals-panel">
+                    <div class="section-head">
+                        <h3>Learning Goals</h3>
+                        <p>Create a goal, connect it to a course, and update its progress from here.</p>
+                    </div>
+                    <div class="goal-grid">
+                        <div class="goal-form-wrap">
+                            <form method="post" class="goal-form">
+                                {% csrf_token %}
+                                {{ goal_form.non_field_errors }}
+                                {{ goal_form.title.label_tag }}
+                                {{ goal_form.title }}
+                                {{ goal_form.description.label_tag }}
+                                {{ goal_form.description }}
+                                <div class="field-row">
+                                    <div>
+                                        {{ goal_form.course.label_tag }}
+                                        {{ goal_form.course }}
+                                    </div>
+                                    <div>
+                                        {{ goal_form.target_date.label_tag }}
+                                        {{ goal_form.target_date }}
+                                    </div>
+                                </div>
+                                <button type="submit">Add Learning Goal</button>
+                            </form>
+                        </div>
+                        <div class="goal-list-wrap">
+                            {% if learning_goals %}
+                                <ul class="goal-list">
+                                    {% for goal in learning_goals %}
+                                        <li class="goal-item">
+                                            <div class="item-head">
+                                                <h4>{{ goal.title }}</h4>
+                                                <span class="badge">{{ goal.get_status_display }}</span>
+                                            </div>
+                                            {% if goal.description %}
+                                                <p class="meta">{{ goal.description }}</p>
+                                            {% endif %}
+                                            <p class="meta">
+                                                {{ goal.progress_percentage }}% complete
+                                                {% if goal.course %} · {{ goal.course.title }}{% endif %}
+                                                {% if goal.target_date %} · Target {{ goal.target_date }}{% endif %}
+                                            </p>
+                                            <div class="progress-wrap" aria-label="{{ goal.title }} progress">
+                                                <div class="progress-fill" style="width: {{ goal.progress_percentage }}%"></div>
+                                            </div>
+                                            <form method="post" action="{% url 'update_learning_goal' goal.id %}" class="inline-form">
+                                                {% csrf_token %}
+                                                <div class="field-row">
+                                                    <div>
+                                                        {{ goal.progress_form.status.label_tag }}
+                                                        {{ goal.progress_form.status }}
+                                                    </div>
+                                                    <div>
+                                                        {{ goal.progress_form.progress_percentage.label_tag }}
+                                                        {{ goal.progress_form.progress_percentage }}
+                                                    </div>
+                                                </div>
+                                                <div class="item-actions">
+                                                    <button type="submit" class="btn btn-sm">Update Goal</button>
+                                                </div>
+                                            </form>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="muted-empty">No learning goals yet. Add one to track what you want to achieve next.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+
+                <article class="ui-card results-panel">
+                    <h3>Recent Assessment Results</h3>
+                    {% if latest_results %}
+                        <ul class="result-list">
+                            {% for result in latest_results %}
+                                <li class="result-item">
+                                    <h4>{{ result.assessment.title }}</h4>
+                                    <p class="meta">{{ result.score }}% score · {{ result.correct_answers }}/{{ result.total_questions }} correct</p>
+                                    <p class="meta">{{ result.submitted_at|date:'M j, Y g:i A' }} · {% if result.passed %}Passed{% else %}Needs review{% endif %}</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="muted-empty">No assessment attempts yet.</p>
+                    {% endif %}
+                </article>
+            </div>
+        </section>
+
+        <section class="view" id="browse" data-section>
+            <div class="section-head">
+                <h3>Recommended Courses</h3>
+                <p>Published courses you have not enrolled in yet.</p>
+            </div>
+            <div class="item-actions">
+                <a class="btn btn-sm" href="{% url 'curriculum_browser' %}">Open Curriculum Library</a>
+            </div>
+            {% if available_courses %}
+                <ul class="course-list">
+                    {% for course in available_courses %}
+                        <li class="course-item">
+                            <div class="course-head">
+                                <p class="course-title">{{ course.title }}</p>
+                                <span class="badge">{{ course.get_level_display }}</span>
+                            </div>
+                            <p class="meta">{{ course.subject.name }} · {{ course.topic_count }} topics · {{ course.estimated_hours }} hrs</p>
+                            {% if course.description %}
+                                <p class="meta">{{ course.description }}</p>
+                            {% endif %}
+                            {% if course.topic_count %}
+                                <ul class="outline-list">
+                                    {% for topic in course.topics.all|slice:':4' %}
+                                        <li>{{ topic.title }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            <div class="item-actions">
+                                <form method="post" action="{% url 'enroll_course' course.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm">Enroll Course</button>
+                                </form>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="muted-empty">No additional published courses are available right now.</p>
+            {% endif %}
+        </section>
+
+        <section class="view" id="my-courses" data-section>
+            <div class="section-head">
+                <h3>My Courses</h3>
+                <p>Your enrolled courses and current progress.</p>
+            </div>
+            <div class="split-two">
+                <article class="ui-card">
+                    <h3>Enrolled</h3>
+                    {% if enrolled_courses %}
+                        <ul class="course-list">
+                            {% for course in enrolled_courses %}
+                                <li class="course-item">
+                                    <div class="course-head">
+                                        <p class="course-title">{{ course.title }}</p>
+                                        <span class="badge">{{ course.summary.progress }}%</span>
+                                    </div>
+                                    <div class="progress-wrap" aria-label="{{ course.title }} progress">
+                                        <div class="progress-fill" style="width: {{ course.summary.progress }}%"></div>
+                                    </div>
+                                    <p class="meta">{{ course.subject.name }} · {{ course.summary.topic_count }} topics</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="muted-empty">You are not enrolled in any courses yet.</p>
+                    {% endif %}
+                </article>
+                <article class="ui-card">
+                    <h3>Completed</h3>
+                    {% if completed_courses %}
+                        <ul class="course-list">
+                            {% for course in completed_courses %}
+                                <li class="course-item">
+                                    <div class="course-head">
+                                        <p class="course-title">{{ course.title }}</p>
+                                        <span class="badge">Completed</span>
+                                    </div>
+                                    <p class="meta">{{ course.subject.name }} · {{ course.estimated_hours }} hrs</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="muted-empty">No completed courses yet.</p>
+                    {% endif %}
+                </article>
+            </div>
+        </section>
+
+        <section class="view" id="quiz" data-section>
+            <div class="section-head">
+                <h3>Quiz Center</h3>
+                <p>Take course assessments and review your latest result for each one.</p>
+            </div>
+            {% if assessments %}
+                <ul class="assessment-list">
+                    {% for assessment in assessments %}
+                        <li class="assessment-item">
+                            <div class="item-head">
+                                <h4>{{ assessment.title }}</h4>
+                                <span class="badge">{{ assessment.question_count }} questions</span>
+                            </div>
+                            <p class="meta">{{ assessment.course.subject.name }} · {{ assessment.course.title }} · Pass mark {{ assessment.passing_score }}%</p>
+                            {% if assessment.description %}
+                                <p class="meta">{{ assessment.description }}</p>
+                            {% endif %}
+                            {% if assessment.latest_result %}
+                                <p class="meta">Latest result: {{ assessment.latest_result.score }}% on {{ assessment.latest_result.submitted_at|date:'M j, Y' }}</p>
+                            {% endif %}
+                            <div class="item-actions">
+                                <a class="btn btn-sm" href="{% url 'assessment_detail' assessment.id %}">Take Assessment</a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="muted-empty">No active assessments are available yet.</p>
+            {% endif %}
+        </section>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_body %}
+<script>
+    (function () {
+        function showView(viewId) {
+            document.querySelectorAll('[data-section]').forEach((el) => {
+                el.classList.toggle('active', el.id === viewId);
+            });
+            document.querySelectorAll('.nav-btn').forEach((btn) => {
+                btn.classList.toggle('active', btn.dataset.view === viewId);
+            });
+        }
+
+        document.querySelectorAll('.nav-btn').forEach((btn) => {
+            btn.addEventListener('click', () => showView(btn.dataset.view));
+        });
+    })();
+</script>
+{% endblock %}

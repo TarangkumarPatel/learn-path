@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+
+{% block title %}LearnPath Admin{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    :root {
+        --lp-accent: #0f766e;
+        --lp-accent-dark: #115e59;
+        --lp-surface: #f4fbf8;
+        --lp-border: #d7e7df;
+    }
+
+    #header {
+        background: linear-gradient(135deg, var(--lp-accent-dark), var(--lp-accent));
+        color: #fff;
+    }
+
+    #branding h1,
+    #branding h1 a:link,
+    #branding h1 a:visited {
+        color: #fff;
+    }
+
+    div.breadcrumbs {
+        background: #e8f5ef;
+        color: #20423d;
+    }
+
+    .module h2,
+    .module caption,
+    .inline-group h2 {
+        background: var(--lp-accent);
+    }
+
+    .button,
+    input[type=submit],
+    input[type=button],
+    .submit-row input,
+    a.button {
+        background: var(--lp-accent);
+    }
+
+    .button.default,
+    input[type=submit].default,
+    .submit-row input.default {
+        background: var(--lp-accent-dark);
+    }
+
+    .dashboard #content {
+        width: 100%;
+    }
+    
+    .lp-admin-note {
+        margin: 0 0 24px;
+        padding: 16px 18px;
+        border: 1px solid var(--lp-border);
+        border-radius: 14px;
+        background: linear-gradient(180deg, #ffffff, var(--lp-surface));
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">LearnPath Admin</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
