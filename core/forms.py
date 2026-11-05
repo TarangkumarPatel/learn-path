@@ -1,3 +1,5 @@
+from datetime import date
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
@@ -60,6 +62,15 @@ class LearningGoalForm(forms.ModelForm):
                 enrollments__user=user,
                 enrollments__is_active=True,
             ).distinct()
+
+    def clean_target_date(self):
+        target_date = self.cleaned_data.get('target_date')
+
+        # a goal with a deadline that already passed doesn't make much sense
+        if target_date and target_date < date.today():
+            raise forms.ValidationError("Target date can't be in the past.")
+
+        return target_date
 
 
 class LearningGoalProgressForm(forms.ModelForm):
