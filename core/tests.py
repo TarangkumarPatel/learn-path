@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -16,7 +18,7 @@ from .models import (
     UserCourseEnrollment,
     UserCourseProgress,
 )
-from .forms import SignUpForm
+from .forms import LearningGoalForm, SignUpForm
 
 
 User = get_user_model()
@@ -72,6 +74,23 @@ class SignUpFormTests(TestCase):
         }
         form = SignUpForm(data=data)
         self.assertFalse(form.is_valid())
+
+
+class LearningGoalFormTests(TestCase):
+    def test_past_target_date_is_rejected(self):
+        yesterday = date.today() - timedelta(days=1)
+        form = LearningGoalForm(data={'title': 'Learn Django', 'target_date': yesterday})
+        self.assertFalse(form.is_valid())
+        self.assertIn('target_date', form.errors)
+
+    def test_future_target_date_is_accepted(self):
+        next_week = date.today() + timedelta(days=7)
+        form = LearningGoalForm(data={'title': 'Learn Django', 'target_date': next_week})
+        self.assertNotIn('target_date', form.errors)
+
+    def test_blank_target_date_is_accepted(self):
+        form = LearningGoalForm(data={'title': 'Learn Django'})
+        self.assertNotIn('target_date', form.errors)
 
 # --- 3. GENERAL VIEW TESTS ---
 class GeneralViewTests(TestCase):
@@ -269,7 +288,7 @@ class DashboardFeatureTests(TestCase):
                 'title': 'Finish Python Foundations',
                 'description': 'Reach the final module this week.',
                 'course': self.course.id,
-                'target_date': '2026-04-30',
+                'target_date': (date.today() + timedelta(days=7)).isoformat(),
             },
         )
 
