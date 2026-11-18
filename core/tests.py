@@ -216,38 +216,6 @@ class CurriculumBrowserTests(TestCase):
         self.assertEqual(curricula[2], self.adv_curr)
 
 
-
-# from django.test import TestCase
-# from django.urls import reverse
-# from django.contrib.auth.models import User
-
-# from .models import Curriculum
-
-
-# class CurriculumBrowserTests(TestCase):
-#     def setUp(self):
-#         self.user = User.objects.create_user(username='tester', password='strong-pass-123')
-#         Curriculum.objects.create(
-#             title='Python Basics',
-#             description='Intro curriculum',
-#             level='beginner',
-#             estimated_hours=5,
-#             is_published=True,
-#         )
-
-#     def test_curriculum_browser_requires_login(self):
-#         response = self.client.get(reverse('curriculum_browser'))
-#         self.assertEqual(response.status_code, 302)
-#         self.assertIn(reverse('login'), response.url)
-
-#     def test_curriculum_browser_renders_for_logged_in_user(self):
-#         self.client.login(username='tester', password='strong-pass-123')
-#         response = self.client.get(reverse('curriculum_browser'))
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTemplateUsed(response, 'core/curriculum_browser.html')
-#         self.assertContains(response, 'Python Basics')
-
-
 class DashboardFeatureTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='learner', password='strong-pass-123', name='Learner One')
